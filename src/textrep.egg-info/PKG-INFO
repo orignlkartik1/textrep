@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: textrep
+Version: 1.0.0
+Summary: A lightweight text analysis library
+Author: Kartik
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
