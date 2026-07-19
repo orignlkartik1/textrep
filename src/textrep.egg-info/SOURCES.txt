@@ -1,3 +1,5 @@
+LICENSE
+README.md
 pyproject.toml
 src/textrep/__init__.py
 src/textrep/__main__.py

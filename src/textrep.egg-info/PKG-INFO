@@ -5,3 +5,7 @@ Summary: A lightweight text analysis library
 Author: Kartik
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# textrep
