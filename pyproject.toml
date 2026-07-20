@@ -1,6 +1,6 @@
 [project]
 name = "textrep"
-version = "1.0.1"
+version = "1.0.2"
 description = "A lightweight text analysis library"
 readme = "README.md"
 requires-python = ">=3.10"
