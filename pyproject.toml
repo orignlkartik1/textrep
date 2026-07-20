@@ -1,23 +1,25 @@
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "textrep"
 version = "1.0.1"
 description = "A lightweight text analysis library"
 readme = "README.md"
 requires-python = ">=3.10"
+
 authors = [
     { name = "Kartik" }
 ]
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+license = { text = "MIT" }
 
-[tool.setuptools.packages.find]
-where = ["src"]
+keywords = [
+    "text",
+    "analysis",
+    "nlp",
+    "python"
+]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
