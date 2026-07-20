@@ -1,11 +1,76 @@
 Metadata-Version: 2.4
 Name: textrep
-Version: 1.0.0
+Version: 1.0.1
 Summary: A lightweight text analysis library
 Author: Kartik
+License: MIT
+Keywords: text,analysis,nlp,python
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Dynamic: license-file
 
 # textrep
+
+A lightweight text analysis library for Python that provides powerful text processing capabilities with minimal dependencies.
+
+## Features
+
+- Fast and efficient text analysis
+- Lightweight implementation
+- Easy-to-use API
+- Comprehensive documentation
+- Fully tested
+
+## Installation
+
+```bash
+pip install textrep
+```
+
+Or using uv:
+
+```bash
+uv pip install textrep
+```
+
+## Quick Start
+
+```python
+import textrep
+
+# Your usage example here
+```
+
+## Documentation
+
+For detailed documentation, visit our [Documentation](./docs/USAGE.md).
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](./CONTRIBUTING.md) for details on how to get started.
+
+## Code of Conduct
+
+Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand our community standards.
+
+## Security
+
+For security issues, please see our [Security Policy](./SECURITY.md).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## Support
+
+- 📖 [Documentation](./docs/USAGE.md)
+- 🐛 [Report a Bug](https://github.com/orignlkartik1/textrep/issues)
+- 💡 [Request a Feature](https://github.com/orignlkartik1/textrep/issues)
+
+---
+
+Made with ❤️ by Kartik
