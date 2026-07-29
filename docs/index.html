@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TextRep - Lightweight Python Text Analysis</title>
+  <meta
+    name="description"
+    content="TextRep is a lightweight Python library for counting, profiling, loading, and analyzing text documents."
+  >
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172026;
+      --muted: #5d6872;
+      --line: #d9e1e7;
+      --panel: #ffffff;
+      --paper: #f6f8f5;
+      --code: #102127;
+      --code-panel: #e8f0ed;
+      --teal: #007d76;
+      --red: #b54435;
+      --gold: #b2780b;
+      --green: #2f7a45;
+      --blue: #2368a2;
+      --shadow: 0 18px 42px rgba(23, 32, 38, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      padding: 28px 22px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid #a9c9c4;
+      border-radius: 8px;
+      background: #e7f3ef;
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    nav a {
+      border-radius: 7px;
+      color: #34424d;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      background: #edf3f1;
+      text-decoration: none;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section,
+    header.hero {
+      padding: 64px clamp(22px, 5vw, 74px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+      gap: clamp(28px, 5vw, 64px);
+      align-items: center;
+      background: #fbfcfa;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.1;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: clamp(42px, 7vw, 76px);
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 46px);
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #3d4a52;
+      font-size: 20px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .button:hover {
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+
+    .code-window {
+      overflow: hidden;
+      border: 1px solid #bccdc8;
+      border-radius: 8px;
+      background: var(--code);
+      box-shadow: var(--shadow);
+    }
+
+    .window-bar {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      min-height: 38px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0 14px;
+      background: #183137;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .dot:nth-child(2) {
+      background: var(--gold);
+    }
+
+    .dot:nth-child(3) {
+      background: var(--green);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 22px;
+      color: #e5f2ef;
+      font: 14px/1.55 "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    code {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .token-key {
+      color: #8fd3c5;
+    }
+
+    .token-call {
+      color: #f1c05e;
+    }
+
+    .token-string {
+      color: #f08c7a;
+    }
+
+    .section-head {
+      max-width: 830px;
+      margin-bottom: 34px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 22px;
+      box-shadow: 0 1px 0 rgba(23, 32, 38, 0.04);
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      background: #eef4ed;
+      color: #38583f;
+      padding: 2px 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--line);
+    }
+
+    .metric {
+      min-height: 118px;
+      background: #fff;
+      padding: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--teal);
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .api-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .api-item {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.36fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+    }
+
+    .api-item code {
+      color: #145f59;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .api-item p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .step {
+      border-top: 4px solid var(--teal);
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      padding: 18px;
+    }
+
+    .step:nth-child(2) {
+      border-color: var(--blue);
+    }
+
+    .step:nth-child(3) {
+      border-color: var(--gold);
+    }
+
+    .step:nth-child(4) {
+      border-color: var(--green);
+    }
+
+    .extensions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .extension {
+      border: 1px solid #c9d7d2;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px 11px;
+      font-weight: 800;
+      color: #31424c;
+    }
+
+    .note {
+      border-left: 4px solid var(--gold);
+      background: #fff8e8;
+      padding: 16px 18px;
+      color: #493c23;
+    }
+
+    .visual {
+      display: grid;
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .pipeline-art {
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    footer {
+      padding: 30px clamp(22px, 5vw, 74px);
+      color: var(--muted);
+      background: #fff;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero,
+      .grid,
+      .grid.two,
+      .flow,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      section,
+      header.hero {
+        padding: 44px 18px;
+      }
+
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .lead {
+        font-size: 18px;
+      }
+
+      .api-item {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Page navigation">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">Tr</div>
+        <div>
+          <strong>TextRep</strong>
+          <span>Python text analysis</span>
+        </div>
+      </div>
+      <nav>
+        <a href="#overview">Overview</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="#quick-start">Quick start</a>
+        <a href="#api-styles">API styles</a>
+        <a href="#functions">Functions</a>
+        <a href="#files">Files</a>
+        <a href="#results">Results</a>
+        <a href="#errors">Errors</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <div>
+          <p class="eyebrow">textrep 1.2.0</p>
+          <h1>Lightweight text analysis for Python projects.</h1>
+          <p class="lead">
+            TextRep turns raw text and document files into useful counts,
+            frequency tables, readability metrics, and structured analysis
+            objects without pulling in a heavy NLP stack.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#quick-start">Start using TextRep</a>
+            <a class="button" href="#functions">View functions</a>
+          </div>
+        </div>
+
+        <div class="code-window" aria-label="TextRep example code">
+          <div class="window-bar" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
+
+text = <span class="token-string">"Hello world. TextRep analyzes text."</span>
+
+result = tr.<span class="token-call">analyze</span>(text)
+
+print(result.stats.word_count)
+print(result.readability.reading_time_minutes)
+print(result.word_frequency)</code></pre>
+        </div>
+      </header>
+
+      <section>
+        <div class="metric-strip" aria-label="TextRep feature summary">
+          <div class="metric">
+            <strong>3</strong>
+            <span>API styles: functional, document, and file loading.</span>
+          </div>
+          <div class="metric">
+            <strong>7</strong>
+            <span>Supported file extensions including txt, md, html, pdf, and docx.</span>
+          </div>
+          <div class="metric">
+            <strong>18+</strong>
+            <span>Public analysis functions for counts, timing, and frequency.</span>
+          </div>
+          <div class="metric">
+            <strong>MIT</strong>
+            <span>Small, permissive, and easy to add to Python tools.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="use-cases">
+        <div class="section-head">
+          <h2>Use Cases</h2>
+          <p>
+            TextRep is useful when you need dependable text measurements more
+            than machine learning, semantic search, or language modeling.
+          </p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <span class="tag">Content tools</span>
+            <h3>Editorial dashboards</h3>
+            <p>Measure word count, sentence count, average word length, reading time, and repeated terms before publishing.</p>
+          </article>
+          <article class="card">
+            <span class="tag">Automation</span>
+            <h3>Document checks</h3>
+            <p>Load text-like files from disk and validate length, density, symbols, or repeated words in scripts and CI tasks.</p>
+          </article>
+          <article class="card">
+            <span class="tag">Learning</span>
+            <h3>Text analysis basics</h3>
+            <p>Teach tokenization, counting, frequency analysis, and simple readability concepts through a readable Python API.</p>
+          </article>
+          <article class="card">
+            <span class="tag">Data prep</span>
+            <h3>Corpus profiling</h3>
+            <p>Generate quick statistics for samples before feeding documents into indexing, reporting, or analytics pipelines.</p>
+          </article>
+          <article class="card">
+            <span class="tag">CLI workflows</span>
+            <h3>File reports</h3>
+            <p>Use the bundled command-line entry point or legacy analyzer to inspect plain text files quickly.</p>
+          </article>
+          <article class="card">
+            <span class="tag">Apps</span>
+            <h3>Feature extraction</h3>
+            <p>Add typed text metrics to web apps, internal tools, notebooks, and lightweight backend services.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="quick-start">
+        <div class="section-head">
+          <h2>Quick Start</h2>
+          <p>Install TextRep, import it, and call the function that matches the result you need.</p>
+        </div>
+        <div class="grid two">
+          <div class="code-window">
+            <div class="window-bar" aria-hidden="true">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <pre><code>pip install textrep
+
+# Optional document loaders
+pip install textrep[pdf]
+pip install textrep[docx]
+pip install textrep[all]</code></pre>
+          </div>
+          <div class="code-window">
+            <div class="window-bar" aria-hidden="true">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
+
+text = <span class="token-string">"Hello world. Hello TextRep."</span>
+
+tr.<span class="token-call">word_count</span>(text)
+tr.<span class="token-call">readability</span>(text)
+tr.<span class="token-call">top_words</span>(text, n=5)
+tr.<span class="token-call">analyze</span>(text)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="api-styles">
+        <div class="section-head">
+          <h2>API Styles</h2>
+          <p>
+            The functional API is the source of truth. The object APIs keep
+            text, file metadata, and reusable methods together.
+          </p>
+        </div>
+        <div class="flow">
+          <article class="step">
+            <h3>Functional API</h3>
+            <p>Use <code>textrep.word_count(text)</code>, <code>textrep.stats(text)</code>, or <code>textrep.analyze(text)</code> when you already have a string.</p>
+          </article>
+          <article class="step">
+            <h3>Document API</h3>
+            <p>Create <code>Document(text)</code> when repeated analysis should stay attached to one piece of text and optional metadata.</p>
+          </article>
+          <article class="step">
+            <h3>File API</h3>
+            <p>Call <code>load(path)</code> to read a supported file and receive a <code>Document</code> with source metadata.</p>
+          </article>
+          <article class="step">
+            <h3>Legacy API</h3>
+            <p><code>TextAnalyzer(path)</code> remains available for older v1-style file analysis code.</p>
+          </article>
+        </div>
+
+        <div class="visual" aria-label="TextRep pipeline diagram">
+          <svg class="pipeline-art" viewBox="0 0 980 220" role="img" aria-labelledby="pipeline-title pipeline-desc">
+            <title id="pipeline-title">TextRep analysis pipeline</title>
+            <desc id="pipeline-desc">A diagram showing documents flowing through loaders, analyzers, and typed result objects.</desc>
+            <rect x="28" y="44" width="180" height="112" rx="8" fill="#eef4ed" stroke="#b7c9bf"></rect>
+            <text x="118" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">Text or file</text>
+            <text x="118" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">txt md html pdf docx</text>
+            <path d="M226 100 H338" stroke="#007d76" stroke-width="4" fill="none"></path>
+            <path d="M338 100 l-14 -9 v18 z" fill="#007d76"></path>
+            <rect x="360" y="44" width="220" height="112" rx="8" fill="#eaf0f6" stroke="#b7c6d3"></rect>
+            <text x="470" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">TextRep APIs</text>
+            <text x="470" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">functions and Document</text>
+            <path d="M600 100 H712" stroke="#2368a2" stroke-width="4" fill="none"></path>
+            <path d="M712 100 l-14 -9 v18 z" fill="#2368a2"></path>
+            <rect x="734" y="44" width="218" height="112" rx="8" fill="#fff8e8" stroke="#dfc985"></rect>
+            <text x="843" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">Typed results</text>
+            <text x="843" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">stats readability frequency</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="functions">
+        <div class="section-head">
+          <h2>Functions</h2>
+          <p>These are the public functions exported from <code>textrep</code>.</p>
+        </div>
+        <div class="api-list">
+          <div class="api-item"><code>analyze(text)</code><p>Returns one <code>AnalysisResult</code> containing core stats, readability, character frequency, word frequency, and metadata.</p></div>
+          <div class="api-item"><code>stats(text)</code><p>Returns <code>TextStats</code> with word, character, letter, digit, space, symbol, unique word, and average word length metrics.</p></div>
+          <div class="api-item"><code>readability(text)</code><p>Returns <code>ReadabilityStats</code> with sentence count, average sentence length, and reading time in minutes.</p></div>
+          <div class="api-item"><code>word_count(text)</code><p>Counts lowercase word tokens using TextRep tokenization.</p></div>
+          <div class="api-item"><code>character_count(text)</code><p>Counts every character in the input string, including whitespace and punctuation.</p></div>
+          <div class="api-item"><code>letter_count(text)</code><p>Counts alphabetic characters only.</p></div>
+          <div class="api-item"><code>digit_count(text)</code><p>Counts numeric digit characters.</p></div>
+          <div class="api-item"><code>space_count(text)</code><p>Counts whitespace characters.</p></div>
+          <div class="api-item"><code>symbol_count(text)</code><p>Counts characters that are not alphanumeric and not whitespace.</p></div>
+          <div class="api-item"><code>unique_word_count(text)</code><p>Counts distinct lowercase word tokens.</p></div>
+          <div class="api-item"><code>average_word_length(text)</code><p>Returns the average word-token length rounded to two decimals.</p></div>
+          <div class="api-item"><code>longest_word(text)</code><p>Returns the longest token, or an empty string when no words are found.</p></div>
+          <div class="api-item"><code>shortest_word(text)</code><p>Returns the shortest token, or an empty string when no words are found.</p></div>
+          <div class="api-item"><code>sentence_count(text)</code><p>Counts non-empty sentence-like spans separated by punctuation such as periods, exclamation marks, and question marks.</p></div>
+          <div class="api-item"><code>reading_time(text, words_per_minute=200)</code><p>Estimates minutes to read the text. It raises <code>ValueError</code> if words per minute is zero or negative.</p></div>
+          <div class="api-item"><code>character_frequency(text)</code><p>Returns a case-insensitive character frequency dictionary sorted by descending count.</p></div>
+          <div class="api-item"><code>word_frequency(text)</code><p>Returns a case-insensitive word frequency dictionary sorted by descending count.</p></div>
+          <div class="api-item"><code>top_words(text, n=10)</code><p>Returns the <code>n</code> most common words as <code>(word, count)</code> tuples.</p></div>
+          <div class="api-item"><code>load(path)</code><p>Loads a supported file from disk and returns a <code>Document</code>.</p></div>
+        </div>
+      </section>
+
+      <section id="files">
+        <div class="section-head">
+          <h2>File Loading</h2>
+          <p>
+            TextRep can extract text from common document formats. Plain text,
+            Markdown, and HTML work with the standard library. PDF and DOCX use
+            optional dependencies.
+          </p>
+        </div>
+        <div class="code-window">
+          <div class="window-bar" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
+
+doc = tr.<span class="token-call">load</span>(<span class="token-string">"article.md"</span>)
+
+print(doc.metadata.file_name)
+print(doc.word_count())
+print(doc.to_dict())</code></pre>
+        </div>
+        <div class="extensions" aria-label="Supported extensions">
+          <span class="extension">.txt</span>
+          <span class="extension">.md</span>
+          <span class="extension">.markdown</span>
+          <span class="extension">.html</span>
+          <span class="extension">.htm</span>
+          <span class="extension">.pdf</span>
+          <span class="extension">.docx</span>
+        </div>
+        <p class="note">
+          Install <code>textrep[pdf]</code> for PDF extraction, <code>textrep[docx]</code>
+          for Word documents, or <code>textrep[all]</code> for both optional loaders.
+        </p>
+      </section>
+
+      <section id="results">
+        <div class="section-head">
+          <h2>Result Objects</h2>
+          <p>TextRep returns dataclasses so callers can use typed attributes instead of loosely shaped dictionaries.</p>
+        </div>
+        <div class="grid two">
+          <article class="card">
+            <h3><code>TextStats</code></h3>
+            <p>Includes <code>word_count</code>, <code>character_count</code>, <code>letter_count</code>, <code>digit_count</code>, <code>space_count</code>, <code>symbol_count</code>, <code>unique_word_count</code>, and <code>average_word_length</code>.</p>
+          </article>
+          <article class="card">
+            <h3><code>ReadabilityStats</code></h3>
+            <p>Includes <code>sentence_count</code>, <code>average_sentence_length</code>, and <code>reading_time_minutes</code>.</p>
+          </article>
+          <article class="card">
+            <h3><code>DocumentMetadata</code></h3>
+            <p>Stores <code>source</code>, <code>file_name</code>, and <code>extension</code> when a document is loaded from disk.</p>
+          </article>
+          <article class="card">
+            <h3><code>AnalysisResult</code></h3>
+            <p>Combines <code>TextStats</code>, <code>ReadabilityStats</code>, frequency dictionaries, and metadata into one complete result.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="errors">
+        <div class="section-head">
+          <h2>Errors and Compatibility</h2>
+          <p>TextRep exposes focused exception classes and keeps a legacy analyzer for older code.</p>
+        </div>
+        <div class="api-list">
+          <div class="api-item"><code>TextRepError</code><p>Base class for TextRep-specific exceptions.</p></div>
+          <div class="api-item"><code>UnsupportedFileTypeError</code><p>Raised when <code>load(path)</code> receives an unsupported file extension.</p></div>
+          <div class="api-item"><code>MissingDependencyError</code><p>Raised when a file loader needs an optional dependency that is not installed.</p></div>
+          <div class="api-item"><code>TextAnalyzer(path)</code><p>Backward-compatible file analyzer that returns the legacy <code>AnalysisReport</code> shape.</p></div>
+        </div>
+      </section>
+
+      <footer>
+        TextRep is authored by Kartik and released under the MIT License.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
