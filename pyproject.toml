@@ -1,6 +1,6 @@
 [project]
 name = "textrep"
-version = "1.0.2"
+version = "1.2.0"
 description = "A lightweight text analysis library"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,6 +22,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+pdf = ["pypdf"]
+docx = ["python-docx"]
+all = [
+    "pypdf",
+    "python-docx",
 ]
 
 [build-system]

@@ -4,6 +4,7 @@ Functions for reading text files.
 
 from pathlib import Path
 
+from textrep.io import load
 
 SUPPORTED_EXTENSIONS = {".txt"}
 
@@ -41,10 +42,4 @@ def read_file(path: str | Path) -> str:
         File contents as a string.
     """
 
-    path = validate_file(path)
-
-    with path.open(
-            mode="r",
-            encoding="utf-8",
-    ) as file:
-        return file.read()
+    return load(validate_file(path)).text

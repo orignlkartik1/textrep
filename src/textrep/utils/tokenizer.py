@@ -4,6 +4,8 @@ Tokenization utilities.
 
 import re
 
+from textrep.analysis.tokenize import letters, words
+
 
 WORD_PATTERN = re.compile(r"\b[\w']+\b")
 
@@ -21,7 +23,7 @@ def tokenize_words(text: str) -> list[str]:
     ["hello", "world"]
     """
 
-    return WORD_PATTERN.findall(text.lower())
+    return words(text)
 
 
 def tokenize_letters(text: str) -> list[str]:
@@ -37,8 +39,4 @@ def tokenize_letters(text: str) -> list[str]:
     ['h','e','l','l','o']
     """
 
-    return [
-        char.lower()
-        for char in text
-        if char.isalpha()
-    ]
+    return letters(text)

@@ -2,7 +2,11 @@
 Frequency analysis functions.
 """
 
-from collections import Counter
+from textrep.analysis.frequency import (
+    character_frequency as _character_frequency,
+    sort_frequency as _sort_frequency,
+    word_frequency as _word_frequency,
+)
 
 
 def character_frequency(text: str) -> dict[str, int]:
@@ -12,12 +16,7 @@ def character_frequency(text: str) -> dict[str, int]:
     Case-insensitive.
     """
 
-    counter = Counter()
-
-    for char in text.lower():
-        counter[char] += 1
-
-    return sort_frequency(counter)
+    return _character_frequency(text)
 
 
 def word_frequency(text: str) -> dict[str, int]:
@@ -27,14 +26,7 @@ def word_frequency(text: str) -> dict[str, int]:
     Case-insensitive.
     """
 
-    counter = Counter()
-
-    words = text.lower().split()
-
-    for word in words:
-        counter[word] += 1
-
-    return sort_frequency(counter)
+    return _word_frequency(text)
 
 
 def sort_frequency(freq: dict[str, int]) -> dict[str, int]:
@@ -42,10 +34,4 @@ def sort_frequency(freq: dict[str, int]) -> dict[str, int]:
     Sort a frequency dictionary in descending order.
     """
 
-    return dict(
-        sorted(
-            freq.items(),
-            key=lambda item: item[1],
-            reverse=True,
-        )
-    )
+    return _sort_frequency(freq)

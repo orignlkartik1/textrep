@@ -1,0 +1,10 @@
+
+[all]
+pypdf
+python-docx
+
+[docx]
+python-docx
+
+[pdf]
+pypdf

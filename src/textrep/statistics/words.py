@@ -2,7 +2,14 @@
 Functions related to word statistics.
 """
 
-from collections import Counter
+from textrep.analysis.frequency import top_words as _top_words
+from textrep.analysis.statistics import (
+    average_word_length as _average_word_length,
+    longest_word as _longest_word,
+    shortest_word as _shortest_word,
+    unique_word_count,
+    word_count,
+)
 
 
 def count_words(text: str) -> int:
@@ -10,7 +17,7 @@ def count_words(text: str) -> int:
     Count the total number of words.
     """
 
-    return len(text.split())
+    return word_count(text)
 
 
 def unique_words(text: str) -> int:
@@ -18,9 +25,7 @@ def unique_words(text: str) -> int:
     Count unique words (case-insensitive).
     """
 
-    words = text.lower().split()
-
-    return len(set(words))
+    return unique_word_count(text)
 
 
 def average_word_length(text: str) -> float:
@@ -28,14 +33,7 @@ def average_word_length(text: str) -> float:
     Calculate average word length.
     """
 
-    words = text.split()
-
-    if not words:
-        return 0.0
-
-    total = sum(len(word) for word in words)
-
-    return round(total / len(words), 2)
+    return _average_word_length(text)
 
 
 def longest_word(text: str) -> str:
@@ -43,12 +41,7 @@ def longest_word(text: str) -> str:
     Return the longest word.
     """
 
-    words = text.split()
-
-    if not words:
-        return ""
-
-    return max(words, key=len)
+    return _longest_word(text)
 
 
 def shortest_word(text: str) -> str:
@@ -56,21 +49,12 @@ def shortest_word(text: str) -> str:
     Return the shortest word.
     """
 
-    words = text.split()
-
-    if not words:
-        return ""
-
-    return min(words, key=len)
+    return _shortest_word(text)
 
 
-def top_words(text: str, n: int = 10):
+def top_words(text: str, n: int = 10) -> list[tuple[str, int]]:
     """
     Return the n most common words.
     """
 
-    words = text.lower().split()
-
-    counter = Counter(words)
-
-    return counter.most_common(n)
+    return _top_words(text, n=n)
