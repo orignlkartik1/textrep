@@ -1,792 +1,733 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TextRep - Lightweight Python Text Analysis</title>
-  <meta
-    name="description"
-    content="TextRep is a lightweight Python library for counting, profiling, loading, and analyzing text documents."
-  >
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #172026;
-      --muted: #5d6872;
-      --line: #d9e1e7;
-      --panel: #ffffff;
-      --paper: #f6f8f5;
-      --code: #102127;
-      --code-panel: #e8f0ed;
-      --teal: #007d76;
-      --red: #b54435;
-      --gold: #b2780b;
-      --green: #2f7a45;
-      --blue: #2368a2;
-      --shadow: 0 18px 42px rgba(23, 32, 38, 0.08);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.6;
-    }
-
-    a {
-      color: var(--teal);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .shell {
-      display: grid;
-      grid-template-columns: 260px minmax(0, 1fr);
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      border-right: 1px solid var(--line);
-      background: #fff;
-      padding: 28px 22px;
-      overflow-y: auto;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .mark {
-      display: grid;
-      width: 42px;
-      height: 42px;
-      place-items: center;
-      border: 1px solid #a9c9c4;
-      border-radius: 8px;
-      background: #e7f3ef;
-      color: var(--teal);
-      font-weight: 800;
-    }
-
-    .brand strong {
-      display: block;
-      font-size: 18px;
-    }
-
-    .brand span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    nav {
-      display: grid;
-      gap: 4px;
-    }
-
-    nav a {
-      border-radius: 7px;
-      color: #34424d;
-      padding: 8px 10px;
-      font-size: 14px;
-    }
-
-    nav a:hover {
-      background: #edf3f1;
-      text-decoration: none;
-    }
-
-    main {
-      min-width: 0;
-    }
-
-    section,
-    header.hero {
-      padding: 64px clamp(22px, 5vw, 74px);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-      gap: clamp(28px, 5vw, 64px);
-      align-items: center;
-      background: #fbfcfa;
-    }
-
-    .eyebrow {
-      margin: 0 0 12px;
-      color: var(--teal);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-
-    h1,
-    h2,
-    h3 {
-      line-height: 1.1;
-      margin: 0;
-      letter-spacing: 0;
-    }
-
-    h1 {
-      max-width: 760px;
-      font-size: clamp(42px, 7vw, 76px);
-    }
-
-    h2 {
-      font-size: clamp(30px, 4vw, 46px);
-      margin-bottom: 16px;
-    }
-
-    h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .lead {
-      max-width: 720px;
-      margin: 22px 0 0;
-      color: #3d4a52;
-      font-size: 20px;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 30px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      border: 1px solid var(--ink);
-      border-radius: 8px;
-      padding: 10px 16px;
-      color: var(--ink);
-      font-weight: 700;
-    }
-
-    .button.primary {
-      background: var(--ink);
-      color: #fff;
-    }
-
-    .button:hover {
-      text-decoration: none;
-      transform: translateY(-1px);
-    }
-
-    .code-window {
-      overflow: hidden;
-      border: 1px solid #bccdc8;
-      border-radius: 8px;
-      background: var(--code);
-      box-shadow: var(--shadow);
-    }
-
-    .window-bar {
-      display: flex;
-      gap: 7px;
-      align-items: center;
-      min-height: 38px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 0 14px;
-      background: #183137;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--red);
-    }
-
-    .dot:nth-child(2) {
-      background: var(--gold);
-    }
-
-    .dot:nth-child(3) {
-      background: var(--green);
-    }
-
-    pre {
-      margin: 0;
-      overflow-x: auto;
-      padding: 22px;
-      color: #e5f2ef;
-      font: 14px/1.55 "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-    }
-
-    code {
-      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-    }
-
-    .token-key {
-      color: #8fd3c5;
-    }
-
-    .token-call {
-      color: #f1c05e;
-    }
-
-    .token-string {
-      color: #f08c7a;
-    }
-
-    .section-head {
-      max-width: 830px;
-      margin-bottom: 34px;
-    }
-
-    .section-head p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .grid.two {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      padding: 22px;
-      box-shadow: 0 1px 0 rgba(23, 32, 38, 0.04);
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      border-radius: 999px;
-      background: #eef4ed;
-      color: #38583f;
-      padding: 2px 9px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .metric-strip {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--line);
-    }
-
-    .metric {
-      min-height: 118px;
-      background: #fff;
-      padding: 18px;
-    }
-
-    .metric strong {
-      display: block;
-      color: var(--teal);
-      font-size: 30px;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .metric span {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .api-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .api-item {
-      display: grid;
-      grid-template-columns: minmax(190px, 0.36fr) minmax(0, 1fr);
-      gap: 18px;
-      align-items: start;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      padding: 18px;
-    }
-
-    .api-item code {
-      color: #145f59;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-
-    .api-item p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .flow {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .step {
-      border-top: 4px solid var(--teal);
-      background: #fff;
-      border-radius: 0 0 8px 8px;
-      padding: 18px;
-    }
-
-    .step:nth-child(2) {
-      border-color: var(--blue);
-    }
-
-    .step:nth-child(3) {
-      border-color: var(--gold);
-    }
-
-    .step:nth-child(4) {
-      border-color: var(--green);
-    }
-
-    .extensions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .extension {
-      border: 1px solid #c9d7d2;
-      border-radius: 8px;
-      background: #fff;
-      padding: 8px 11px;
-      font-weight: 800;
-      color: #31424c;
-    }
-
-    .note {
-      border-left: 4px solid var(--gold);
-      background: #fff8e8;
-      padding: 16px 18px;
-      color: #493c23;
-    }
-
-    .visual {
-      display: grid;
-      gap: 16px;
-      margin-top: 28px;
-    }
-
-    .pipeline-art {
-      width: 100%;
-      height: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-    }
-
-    footer {
-      padding: 30px clamp(22px, 5vw, 74px);
-      color: var(--muted);
-      background: #fff;
-    }
-
-    @media (max-width: 980px) {
-      .shell {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-        height: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      nav {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .hero,
-      .grid,
-      .grid.two,
-      .flow,
-      .metric-strip {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      section,
-      header.hero {
-        padding: 44px 18px;
-      }
-
-      nav {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      h1 {
-        font-size: 40px;
-      }
-
-      .lead {
-        font-size: 18px;
-      }
-
-      .api-item {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <title>TextRep - Lightweight Python Text Analysis & Profiling</title>
+  <meta name="description" content="TextRep is a lightweight Python library for counting, profiling, loading, and analyzing text documents with zero heavy dependencies.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar" aria-label="Page navigation">
-      <div class="brand">
-        <div class="mark" aria-hidden="true">Tr</div>
-        <div>
-          <strong>TextRep</strong>
-          <span>Python text analysis</span>
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" aria-label="Main Navigation">
+      <div>
+        <div class="brand">
+          <div class="brand-logo">Tr</div>
+          <div class="brand-text">
+            <strong>TextRep</strong>
+            <span>Python text analysis <span class="version-pill">v1.2.0</span></span>
+          </div>
         </div>
+        
+        <a href="https://github.com/orignlkartik1/textrep" target="_blank" rel="noopener noreferrer" class="nav-item" style="margin-bottom: 12px; background: var(--bg-input); border: 1px solid var(--border-color);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          GitHub Repository
+        </a>
+
+        <nav class="nav-menu">
+          <div class="nav-section-title">Getting Started</div>
+          <a class="nav-item active" href="#overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            Overview
+          </a>
+          <a class="nav-item" href="#playground">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Live Playground
+          </a>
+          <a class="nav-item" href="#quick-start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Quick Start
+          </a>
+
+          <div class="nav-section-title">Core Reference</div>
+          <a class="nav-item" href="#use-cases">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Use Cases
+          </a>
+          <a class="nav-item" href="#api-styles">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+            API Styles
+          </a>
+          <a class="nav-item" href="#functions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Functions API
+          </a>
+
+          <div class="nav-section-title">Data & Errors</div>
+          <a class="nav-item" href="#files">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            File Loading
+          </a>
+          <a class="nav-item" href="#results">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            Result Objects
+          </a>
+          <a class="nav-item" href="#errors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Errors & Legacy
+          </a>
+        </nav>
       </div>
-      <nav>
-        <a href="#overview">Overview</a>
-        <a href="#use-cases">Use cases</a>
-        <a href="#quick-start">Quick start</a>
-        <a href="#api-styles">API styles</a>
-        <a href="#functions">Functions</a>
-        <a href="#files">Files</a>
-        <a href="#results">Results</a>
-        <a href="#errors">Errors</a>
-      </nav>
+
+      <div class="sidebar-footer">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme">
+          <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span id="theme-text">Light Mode</span>
+        </button>
+      </div>
     </aside>
 
-    <main>
-      <header class="hero" id="overview">
-        <div>
-          <p class="eyebrow">textrep 1.2.0</p>
-          <h1>Lightweight text analysis for Python projects.</h1>
-          <p class="lead">
-            TextRep turns raw text and document files into useful counts,
-            frequency tables, readability metrics, and structured analysis
-            objects without pulling in a heavy NLP stack.
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <header class="hero-section" id="overview">
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <span class="badge-dot"></span>
+            textrep v1.2.0 • Lightweight Python Library
+          </div>
+          <h1 class="hero-title">
+            Lightweight text analysis for <span class="gradient-highlight">Python projects</span>.
+          </h1>
+          <p class="hero-subtitle">
+            TextRep turns raw text and document files into precise counts, word frequency tables, readability metrics, and typed analysis objects without pulling in a heavy NLP stack.
           </p>
-          <div class="actions">
-            <a class="button primary" href="#quick-start">Start using TextRep</a>
-            <a class="button" href="#functions">View functions</a>
+
+          <!-- Interactive Install Bar -->
+          <div class="install-bar">
+            <span class="install-prefix">$</span>
+            <span class="install-cmd" id="install-command">pip install textrep</span>
+            <button class="btn-copy-install" data-copy-target="install-command" title="Copy to clipboard">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#playground">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Try Live Playground
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/orignlkartik1/textrep" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              GitHub Repository
+            </a>
+            <a class="btn btn-secondary" href="#functions">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              View Functions API
+            </a>
           </div>
         </div>
 
-        <div class="code-window" aria-label="TextRep example code">
-          <div class="window-bar" aria-hidden="true">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <!-- Code Window Mockup -->
+        <div class="code-window">
+          <div class="window-header">
+            <div class="window-dots">
+              <span class="window-dot dot-red"></span>
+              <span class="window-dot dot-yellow"></span>
+              <span class="window-dot dot-green"></span>
+            </div>
+            <span class="window-title">example.py</span>
+            <button class="btn-copy-code" data-copy-target="hero-code-snippet">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
           </div>
-          <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
+          <pre class="code-block" id="hero-code-snippet"><code><span class="token-keyword">import</span> textrep <span class="token-keyword">as</span> tr
 
-text = <span class="token-string">"Hello world. TextRep analyzes text."</span>
+<span class="token-comment"># Analyze text directly</span>
+text = <span class="token-string">"Hello world. TextRep analyzes text fast."</span>
+result = tr.<span class="token-function">analyze</span>(text)
 
-result = tr.<span class="token-call">analyze</span>(text)
-
-print(result.stats.word_count)
-print(result.readability.reading_time_minutes)
-print(result.word_frequency)</code></pre>
+<span class="token-builtin">print</span>(result.stats.word_count)  <span class="token-comment"># 6</span>
+<span class="token-builtin">print</span>(result.readability.reading_time_minutes)  <span class="token-comment"># 0.03</span>
+<span class="token-builtin">print</span>(result.word_frequency)  <span class="token-comment"># {'textrep': 1, 'analyzes': 1...}</span></code></pre>
         </div>
       </header>
 
-      <section>
-        <div class="metric-strip" aria-label="TextRep feature summary">
-          <div class="metric">
-            <strong>3</strong>
-            <span>API styles: functional, document, and file loading.</span>
+      <!-- Feature Metrics Strip -->
+      <section class="section" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="metrics-strip">
+          <div class="metric-card">
+            <div class="metric-val">3</div>
+            <div class="metric-label">API styles: functional, document, and file loading</div>
           </div>
-          <div class="metric">
-            <strong>7</strong>
-            <span>Supported file extensions including txt, md, html, pdf, and docx.</span>
+          <div class="metric-card">
+            <div class="metric-val">7</div>
+            <div class="metric-label">Supported document extensions (.txt, .md, .html, .pdf, .docx...)</div>
           </div>
-          <div class="metric">
-            <strong>18+</strong>
-            <span>Public analysis functions for counts, timing, and frequency.</span>
+          <div class="metric-card">
+            <div class="metric-val">18+</div>
+            <div class="metric-label">Public analysis functions for counts, readability & frequency</div>
           </div>
-          <div class="metric">
-            <strong>MIT</strong>
-            <span>Small, permissive, and easy to add to Python tools.</span>
+          <div class="metric-card">
+            <div class="metric-val">MIT</div>
+            <div class="metric-label">Small, permissive license with zero required third-party dependencies</div>
           </div>
         </div>
       </section>
 
-      <section id="use-cases">
-        <div class="section-head">
-          <h2>Use Cases</h2>
-          <p>
-            TextRep is useful when you need dependable text measurements more
-            than machine learning, semantic search, or language modeling.
+      <!-- Interactive Live Analytics Playground -->
+      <section class="section" id="playground">
+        <div class="section-header">
+          <div class="section-tag">Interactive Demo</div>
+          <h2 class="section-title">Try TextRep Live</h2>
+          <p class="section-description">
+            Type or paste custom text below, or select a preset to see real-time TextRep metrics computed instantly in your browser.
           </p>
         </div>
-        <div class="grid">
+
+        <div class="playground-container">
+          <!-- Editor Side -->
+          <div class="playground-editor-side">
+            <div class="preset-bar">
+              <span class="preset-label">Preset Samples:</span>
+              <button class="preset-btn active" data-preset="editorial">Editorial Article</button>
+              <button class="preset-btn" data-preset="code">Python Code</button>
+              <button class="preset-btn" data-preset="review">Product Review</button>
+              <button class="preset-btn" data-preset="simple">Short Text</button>
+            </div>
+
+            <div class="editor-wrapper">
+              <textarea id="playground-text" class="playground-textarea" placeholder="Type or paste your text here to analyze live..." aria-label="Live text analysis input">TextRep is a lightweight Python library designed for developers, data scientists, and technical writers who need rapid, accurate text profiling without installing heavy natural language processing models like NLTK or SpaCy.
+
+With zero external dependencies for core functionality, TextRep quickly extracts document statistics, word frequency counts, readability metrics, and character distributions in a fraction of a millisecond. Whether you are building content management systems, automated doc checkers, or lightweight analytics tools, TextRep keeps your Python applications clean and fast.</textarea>
+              <div class="editor-footer">
+                <span>Live processing powered by TextRep algorithm</span>
+                <span>UTF-8 Document Encoding</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Dashboard Side -->
+          <div class="playground-results-side">
+            <div class="analytics-grid">
+              <div class="stat-box">
+                <span class="stat-box-title">Word Count</span>
+                <span class="stat-box-num" id="res-words">0</span>
+                <span class="stat-box-sub"><span id="res-unique">0</span> unique words</span>
+              </div>
+
+              <div class="stat-box">
+                <span class="stat-box-title">Total Characters</span>
+                <span class="stat-box-num" id="res-chars">0</span>
+                <span class="stat-box-sub">Avg word length: <span id="res-avg-word">0.00</span></span>
+              </div>
+
+              <div class="stat-box">
+                <span class="stat-box-title">Sentence Count</span>
+                <span class="stat-box-num" id="res-sentences">0</span>
+                <span class="stat-box-sub">Avg <span id="res-avg-sent">0.0</span> words / sentence</span>
+              </div>
+
+              <div class="stat-box">
+                <span class="stat-box-title">Reading Time</span>
+                <span class="stat-box-num" id="res-read-time" style="color: var(--accent-blue);">0.00 min</span>
+                <span class="stat-box-sub">Based on 200 wpm standard</span>
+              </div>
+            </div>
+
+            <!-- Detailed Character Breakdown Strip -->
+            <div class="analytics-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="stat-box" style="padding: 10px 12px;">
+                <span class="stat-box-title">Letters</span>
+                <span class="stat-box-num" id="res-letters" style="font-size:1.1rem;">0</span>
+              </div>
+              <div class="stat-box" style="padding: 10px 12px;">
+                <span class="stat-box-title">Digits</span>
+                <span class="stat-box-num" id="res-digits" style="font-size:1.1rem;">0</span>
+              </div>
+              <div class="stat-box" style="padding: 10px 12px;">
+                <span class="stat-box-title">Spaces</span>
+                <span class="stat-box-num" id="res-spaces" style="font-size:1.1rem;">0</span>
+              </div>
+              <div class="stat-box" style="padding: 10px 12px;">
+                <span class="stat-box-title">Symbols</span>
+                <span class="stat-box-num" id="res-symbols" style="font-size:1.1rem;">0</span>
+              </div>
+            </div>
+
+            <!-- Tabs for Frequencies -->
+            <div>
+              <div class="tab-header">
+                <button class="tab-btn playground-tab-btn active" data-tab="tab-word-freq">Top Word Frequency</button>
+                <button class="tab-btn playground-tab-btn" data-tab="tab-char-freq">Character Frequency</button>
+              </div>
+
+              <div id="tab-word-freq" class="tab-content">
+                <div class="word-freq-list" id="freq-word-list">
+                  <!-- Generated via JS -->
+                </div>
+              </div>
+
+              <div id="tab-char-freq" class="tab-content" style="display: none;">
+                <div class="word-freq-list" id="freq-char-list">
+                  <!-- Generated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Use Cases Section -->
+      <section class="section" id="use-cases">
+        <div class="section-header">
+          <div class="section-tag">Target Applications</div>
+          <h2 class="section-title">Use Cases</h2>
+          <p class="section-description">
+            TextRep is ideal when you need dependable text measurements more than heavy machine learning, semantic search, or bloated language models.
+          </p>
+        </div>
+
+        <div class="cards-grid">
           <article class="card">
-            <span class="tag">Content tools</span>
-            <h3>Editorial dashboards</h3>
-            <p>Measure word count, sentence count, average word length, reading time, and repeated terms before publishing.</p>
+            <span class="card-tag">Content Tools</span>
+            <h3 class="card-title">Editorial Dashboards</h3>
+            <p class="card-desc">Measure word count, sentence count, average word length, reading time estimates, and repeated terms before publishing content.</p>
           </article>
+
           <article class="card">
-            <span class="tag">Automation</span>
-            <h3>Document checks</h3>
-            <p>Load text-like files from disk and validate length, density, symbols, or repeated words in scripts and CI tasks.</p>
+            <span class="card-tag">Automation</span>
+            <h3 class="card-title">Document Quality Checks</h3>
+            <p class="card-desc">Load text-like files from disk and validate document length, density, symbol counts, or duplicate words in CI/CD tasks.</p>
           </article>
+
           <article class="card">
-            <span class="tag">Learning</span>
-            <h3>Text analysis basics</h3>
-            <p>Teach tokenization, counting, frequency analysis, and simple readability concepts through a readable Python API.</p>
+            <span class="card-tag">Learning</span>
+            <h3 class="card-title">Text Analysis Fundamentals</h3>
+            <p class="card-desc">Teach tokenization, frequency tables, readability metrics, and character distribution concepts through an intuitive Python API.</p>
           </article>
+
           <article class="card">
-            <span class="tag">Data prep</span>
-            <h3>Corpus profiling</h3>
-            <p>Generate quick statistics for samples before feeding documents into indexing, reporting, or analytics pipelines.</p>
+            <span class="card-tag">Data Prep</span>
+            <h3 class="card-title">Corpus Profiling</h3>
+            <p class="card-desc">Generate quick statistical profiles for document samples before feeding raw data into indexing pipelines or data warehouses.</p>
           </article>
+
           <article class="card">
-            <span class="tag">CLI workflows</span>
-            <h3>File reports</h3>
-            <p>Use the bundled command-line entry point or legacy analyzer to inspect plain text files quickly.</p>
+            <span class="card-tag">CLI Workflows</span>
+            <h3 class="card-title">File Inspection Reports</h3>
+            <p class="card-desc">Use the bundled command-line entry point or legacy analyzer to inspect plain text files directly from terminal scripts.</p>
           </article>
+
           <article class="card">
-            <span class="tag">Apps</span>
-            <h3>Feature extraction</h3>
-            <p>Add typed text metrics to web apps, internal tools, notebooks, and lightweight backend services.</p>
+            <span class="card-tag">Web Applications</span>
+            <h3 class="card-title">Feature Extraction</h3>
+            <p class="card-desc">Add strongly-typed text metrics to microservices, web apps, Jupyter notebooks, and lightweight Python backend tools.</p>
           </article>
         </div>
       </section>
 
-      <section id="quick-start">
-        <div class="section-head">
-          <h2>Quick Start</h2>
-          <p>Install TextRep, import it, and call the function that matches the result you need.</p>
+      <!-- Quick Start Section -->
+      <section class="section" id="quick-start">
+        <div class="section-header">
+          <div class="section-tag">Getting Started</div>
+          <h2 class="section-title">Quick Start</h2>
+          <p class="section-description">
+            Install TextRep via pip, import the package, and call the function that matches your required analysis level.
+          </p>
         </div>
-        <div class="grid two">
-          <div class="code-window">
-            <div class="window-bar" aria-hidden="true">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </div>
-            <pre><code>pip install textrep
 
-# Optional document loaders
-pip install textrep[pdf]
-pip install textrep[docx]
-pip install textrep[all]</code></pre>
-          </div>
+        <div class="cards-grid" style="grid-template-columns: 1fr 1fr;">
           <div class="code-window">
-            <div class="window-bar" aria-hidden="true">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
+            <div class="window-header">
+              <div class="window-dots">
+                <span class="window-dot dot-red"></span>
+                <span class="window-dot dot-yellow"></span>
+                <span class="window-dot dot-green"></span>
+              </div>
+              <span class="window-title">1. Installation Options</span>
+              <button class="btn-copy-code" data-copy-target="install-code">Copy</button>
             </div>
-            <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
+            <pre class="code-block" id="install-code"><code><span class="token-comment"># Core installation (Zero external dependencies)</span>
+pip install textrep
+
+<span class="token-comment"># Optional document loaders</span>
+pip install textrep[pdf]    <span class="token-comment"># PDF support via pypdf</span>
+pip install textrep[docx]   <span class="token-comment"># Word docx support</span>
+pip install textrep[all]    <span class="token-comment"># Install all loaders</span></code></pre>
+          </div>
+
+          <div class="code-window">
+            <div class="window-header">
+              <div class="window-dots">
+                <span class="window-dot dot-red"></span>
+                <span class="window-dot dot-yellow"></span>
+                <span class="window-dot dot-green"></span>
+              </div>
+              <span class="window-title">2. Basic Usage</span>
+              <button class="btn-copy-code" data-copy-target="basic-code">Copy</button>
+            </div>
+            <pre class="code-block" id="basic-code"><code><span class="token-keyword">import</span> textrep <span class="token-keyword">as</span> tr
 
 text = <span class="token-string">"Hello world. Hello TextRep."</span>
 
-tr.<span class="token-call">word_count</span>(text)
-tr.<span class="token-call">readability</span>(text)
-tr.<span class="token-call">top_words</span>(text, n=5)
-tr.<span class="token-call">analyze</span>(text)</code></pre>
+<span class="token-comment"># Convenient standalone functions</span>
+tr.<span class="token-function">word_count</span>(text)           <span class="token-comment"># 4</span>
+tr.<span class="token-function">readability</span>(text)          <span class="token-comment"># ReadabilityStats</span>
+tr.<span class="token-function">top_words</span>(text, n=5)       <span class="token-comment"># [('hello', 2), ('world', 1)...]</span>
+tr.<span class="token-function">analyze</span>(text)             <span class="token-comment"># Full AnalysisResult</span></code></pre>
           </div>
         </div>
       </section>
 
-      <section id="api-styles">
-        <div class="section-head">
-          <h2>API Styles</h2>
-          <p>
-            The functional API is the source of truth. The object APIs keep
-            text, file metadata, and reusable methods together.
+      <!-- API Styles Section -->
+      <section class="section" id="api-styles">
+        <div class="section-header">
+          <div class="section-tag">Architecture</div>
+          <h2 class="section-title">API Styles</h2>
+          <p class="section-description">
+            Choose the API paradigm that best matches your project structure. The functional API is the source of truth, while object APIs keep documents and metadata attached.
           </p>
         </div>
-        <div class="flow">
-          <article class="step">
-            <h3>Functional API</h3>
-            <p>Use <code>textrep.word_count(text)</code>, <code>textrep.stats(text)</code>, or <code>textrep.analyze(text)</code> when you already have a string.</p>
+
+        <div class="flow-grid">
+          <article class="flow-step">
+            <h3 class="flow-step-title">Functional API</h3>
+            <p class="flow-step-desc">Use <code>textrep.word_count(text)</code>, <code>textrep.stats(text)</code>, or <code>textrep.analyze(text)</code> when working with raw in-memory strings.</p>
           </article>
-          <article class="step">
-            <h3>Document API</h3>
-            <p>Create <code>Document(text)</code> when repeated analysis should stay attached to one piece of text and optional metadata.</p>
+
+          <article class="flow-step">
+            <h3 class="flow-step-title">Document API</h3>
+            <p class="flow-step-desc">Instantiate <code>Document(text)</code> when repeated profiling should remain attached to an object instance with custom metadata.</p>
           </article>
-          <article class="step">
-            <h3>File API</h3>
-            <p>Call <code>load(path)</code> to read a supported file and receive a <code>Document</code> with source metadata.</p>
+
+          <article class="flow-step">
+            <h3 class="flow-step-title">File API</h3>
+            <p class="flow-step-desc">Call <code>load(path)</code> to auto-detect and parse document formats from disk, returning a <code>Document</code> object with file metadata.</p>
           </article>
-          <article class="step">
-            <h3>Legacy API</h3>
-            <p><code>TextAnalyzer(path)</code> remains available for older v1-style file analysis code.</p>
+
+          <article class="flow-step">
+            <h3 class="flow-step-title">Legacy API</h3>
+            <p class="flow-step-desc"><code>TextAnalyzer(path)</code> remains supported for full backward-compatibility with v1-style file analysis codebases.</p>
           </article>
         </div>
 
-        <div class="visual" aria-label="TextRep pipeline diagram">
-          <svg class="pipeline-art" viewBox="0 0 980 220" role="img" aria-labelledby="pipeline-title pipeline-desc">
-            <title id="pipeline-title">TextRep analysis pipeline</title>
-            <desc id="pipeline-desc">A diagram showing documents flowing through loaders, analyzers, and typed result objects.</desc>
-            <rect x="28" y="44" width="180" height="112" rx="8" fill="#eef4ed" stroke="#b7c9bf"></rect>
-            <text x="118" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">Text or file</text>
-            <text x="118" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">txt md html pdf docx</text>
-            <path d="M226 100 H338" stroke="#007d76" stroke-width="4" fill="none"></path>
-            <path d="M338 100 l-14 -9 v18 z" fill="#007d76"></path>
-            <rect x="360" y="44" width="220" height="112" rx="8" fill="#eaf0f6" stroke="#b7c6d3"></rect>
-            <text x="470" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">TextRep APIs</text>
-            <text x="470" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">functions and Document</text>
-            <path d="M600 100 H712" stroke="#2368a2" stroke-width="4" fill="none"></path>
-            <path d="M712 100 l-14 -9 v18 z" fill="#2368a2"></path>
-            <rect x="734" y="44" width="218" height="112" rx="8" fill="#fff8e8" stroke="#dfc985"></rect>
-            <text x="843" y="91" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#172026">Typed results</text>
-            <text x="843" y="121" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5d6872">stats readability frequency</text>
+        <!-- Pipeline Architecture Visual Card -->
+        <div class="pipeline-card">
+          <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-main);">Execution Pipeline Architecture</h3>
+          <svg class="pipeline-svg" viewBox="0 0 980 200" role="img" aria-label="TextRep execution pipeline diagram">
+            <g class="pipeline-node">
+              <rect x="20" y="40" width="220" height="120" rx="12" fill="var(--bg-input)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+              <text x="130" y="90" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="var(--text-main)">1. Text / File Input</text>
+              <text x="130" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="var(--accent-teal)">.txt .md .html .pdf .docx</text>
+            </g>
+
+            <path d="M245 100 H355" stroke="var(--accent-teal)" stroke-width="3" fill="none" stroke-dasharray="6 4"></path>
+            <polygon points="360,100 348,93 348,107" fill="var(--accent-teal)"></polygon>
+
+            <g class="pipeline-node">
+              <rect x="365" y="40" width="250" height="120" rx="12" fill="var(--bg-input)" stroke="var(--accent-teal)" stroke-width="2"></rect>
+              <text x="490" y="90" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="var(--text-main)">2. TextRep Core Engine</text>
+              <text x="490" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="var(--text-muted)">Tokenize &amp; Frequency Matrix</text>
+            </g>
+
+            <path d="M620 100 H730" stroke="var(--accent-blue)" stroke-width="3" fill="none" stroke-dasharray="6 4"></path>
+            <polygon points="735,100 723,93 723,107" fill="var(--accent-blue)"></polygon>
+
+            <g class="pipeline-node">
+              <rect x="740" y="40" width="220" height="120" rx="12" fill="var(--bg-input)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+              <text x="850" y="90" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="var(--text-main)">3. Typed Results</text>
+              <text x="850" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="var(--accent-purple)">AnalysisResult dataclass</text>
+            </g>
           </svg>
         </div>
       </section>
 
-      <section id="functions">
-        <div class="section-head">
-          <h2>Functions</h2>
-          <p>These are the public functions exported from <code>textrep</code>.</p>
-        </div>
-        <div class="api-list">
-          <div class="api-item"><code>analyze(text)</code><p>Returns one <code>AnalysisResult</code> containing core stats, readability, character frequency, word frequency, and metadata.</p></div>
-          <div class="api-item"><code>stats(text)</code><p>Returns <code>TextStats</code> with word, character, letter, digit, space, symbol, unique word, and average word length metrics.</p></div>
-          <div class="api-item"><code>readability(text)</code><p>Returns <code>ReadabilityStats</code> with sentence count, average sentence length, and reading time in minutes.</p></div>
-          <div class="api-item"><code>word_count(text)</code><p>Counts lowercase word tokens using TextRep tokenization.</p></div>
-          <div class="api-item"><code>character_count(text)</code><p>Counts every character in the input string, including whitespace and punctuation.</p></div>
-          <div class="api-item"><code>letter_count(text)</code><p>Counts alphabetic characters only.</p></div>
-          <div class="api-item"><code>digit_count(text)</code><p>Counts numeric digit characters.</p></div>
-          <div class="api-item"><code>space_count(text)</code><p>Counts whitespace characters.</p></div>
-          <div class="api-item"><code>symbol_count(text)</code><p>Counts characters that are not alphanumeric and not whitespace.</p></div>
-          <div class="api-item"><code>unique_word_count(text)</code><p>Counts distinct lowercase word tokens.</p></div>
-          <div class="api-item"><code>average_word_length(text)</code><p>Returns the average word-token length rounded to two decimals.</p></div>
-          <div class="api-item"><code>longest_word(text)</code><p>Returns the longest token, or an empty string when no words are found.</p></div>
-          <div class="api-item"><code>shortest_word(text)</code><p>Returns the shortest token, or an empty string when no words are found.</p></div>
-          <div class="api-item"><code>sentence_count(text)</code><p>Counts non-empty sentence-like spans separated by punctuation such as periods, exclamation marks, and question marks.</p></div>
-          <div class="api-item"><code>reading_time(text, words_per_minute=200)</code><p>Estimates minutes to read the text. It raises <code>ValueError</code> if words per minute is zero or negative.</p></div>
-          <div class="api-item"><code>character_frequency(text)</code><p>Returns a case-insensitive character frequency dictionary sorted by descending count.</p></div>
-          <div class="api-item"><code>word_frequency(text)</code><p>Returns a case-insensitive word frequency dictionary sorted by descending count.</p></div>
-          <div class="api-item"><code>top_words(text, n=10)</code><p>Returns the <code>n</code> most common words as <code>(word, count)</code> tuples.</p></div>
-          <div class="api-item"><code>load(path)</code><p>Loads a supported file from disk and returns a <code>Document</code>.</p></div>
-        </div>
-      </section>
-
-      <section id="files">
-        <div class="section-head">
-          <h2>File Loading</h2>
-          <p>
-            TextRep can extract text from common document formats. Plain text,
-            Markdown, and HTML work with the standard library. PDF and DOCX use
-            optional dependencies.
+      <!-- Functions API Reference Section -->
+      <section class="section" id="functions">
+        <div class="section-header">
+          <div class="section-tag">Reference</div>
+          <h2 class="section-title">Functions API</h2>
+          <p class="section-description">
+            Explore the complete suite of public functions exported directly from the top-level <code>textrep</code> module.
           </p>
         </div>
-        <div class="code-window">
-          <div class="window-bar" aria-hidden="true">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+
+        <!-- Search & Filter Controls -->
+        <div class="search-filter-bar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="func-search-input" class="search-input" placeholder="Search functions by name or description (e.g. word_count, readability)..." aria-label="Search API functions">
           </div>
-          <pre><code><span class="token-key">import</span> textrep <span class="token-key">as</span> tr
 
-doc = tr.<span class="token-call">load</span>(<span class="token-string">"article.md"</span>)
+          <div class="filter-pills">
+            <button class="filter-btn active" data-filter="all">All (19)</button>
+            <button class="filter-btn" data-filter="stats">Core Stats</button>
+            <button class="filter-btn" data-filter="readability">Readability</button>
+            <button class="filter-btn" data-filter="freq">Frequencies</button>
+            <button class="filter-btn" data-filter="loader">File Loader</button>
+          </div>
+        </div>
 
-print(doc.metadata.file_name)
-print(doc.word_count())
-print(doc.to_dict())</code></pre>
+        <!-- Function Cards List -->
+        <div class="func-list">
+          <div class="func-card" data-category="stats" data-sig="analyze(text)" data-desc="returns one comprehensive analysisresult containing core stats readability frequency and metadata">
+            <span class="func-signature">analyze(text)</span>
+            <p class="func-desc">Returns a unified <code>AnalysisResult</code> object containing core stats, readability metrics, character/word frequencies, and metadata.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="stats(text)" data-desc="returns textstats with word character letter digit space symbol unique word and average word length metrics">
+            <span class="func-signature">stats(text)</span>
+            <p class="func-desc">Returns a <code>TextStats</code> dataclass containing word count, character count, letter/digit/space/symbol breakdown, and unique word counts.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="readability" data-sig="readability(text)" data-desc="returns readabilitystats with sentence count average sentence length and reading time in minutes">
+            <span class="func-signature">readability(text)</span>
+            <p class="func-desc">Returns a <code>ReadabilityStats</code> dataclass with sentence count, average sentence length, and estimated reading time in minutes.</p>
+            <span class="func-category-badge">Readability</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="word_count(text)" data-desc="counts lowercase word tokens using textrep tokenization rules">
+            <span class="func-signature">word_count(text)</span>
+            <p class="func-desc">Counts word tokens using TextRep tokenization rules.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="character_count(text)" data-desc="counts every character in the input string including whitespace and punctuation">
+            <span class="func-signature">character_count(text)</span>
+            <p class="func-desc">Counts every single character in the string, including whitespace, symbols, and punctuation marks.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="letter_count(text)" data-desc="counts alphabetic characters only">
+            <span class="func-signature">letter_count(text)</span>
+            <p class="func-desc">Counts alphabetic letters (A-Z, a-z) in the input string.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="digit_count(text)" data-desc="counts numeric digit characters 0-9">
+            <span class="func-signature">digit_count(text)</span>
+            <p class="func-desc">Counts numeric digit characters (0-9).</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="space_count(text)" data-desc="counts whitespace characters">
+            <span class="func-signature">space_count(text)</span>
+            <p class="func-desc">Counts whitespace characters including spaces, tabs, and newlines.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="symbol_count(text)" data-desc="counts characters that are not alphanumeric and not whitespace">
+            <span class="func-signature">symbol_count(text)</span>
+            <p class="func-desc">Counts non-alphanumeric and non-whitespace punctuation characters.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="unique_word_count(text)" data-desc="counts distinct lowercase word tokens">
+            <span class="func-signature">unique_word_count(text)</span>
+            <p class="func-desc">Counts unique, distinct lowercase word tokens in the text corpus.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="average_word_length(text)" data-desc="returns average word-token length rounded to two decimals">
+            <span class="func-signature">average_word_length(text)</span>
+            <p class="func-desc">Returns average word token length rounded to two decimal places.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="longest_word(text)" data-desc="returns the longest token or empty string when no words are found">
+            <span class="func-signature">longest_word(text)</span>
+            <p class="func-desc">Returns the longest word token found in the text, or an empty string if no words exist.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="stats" data-sig="shortest_word(text)" data-desc="returns the shortest token or empty string when no words are found">
+            <span class="func-signature">shortest_word(text)</span>
+            <p class="func-desc">Returns the shortest word token in the text string.</p>
+            <span class="func-category-badge">Core Stats</span>
+          </div>
+
+          <div class="func-card" data-category="readability" data-sig="sentence_count(text)" data-desc="counts non-empty sentence-like spans separated by punctuation">
+            <span class="func-signature">sentence_count(text)</span>
+            <p class="func-desc">Counts non-empty sentence spans separated by sentence-ending punctuation (. ! ?).</p>
+            <span class="func-category-badge">Readability</span>
+          </div>
+
+          <div class="func-card" data-category="readability" data-sig="reading_time(text, words_per_minute=200)" data-desc="estimates minutes to read text raises valueerror if wpm is zero or negative">
+            <span class="func-signature">reading_time(text, wpm=200)</span>
+            <p class="func-desc">Estimates reading duration in minutes. Raises <code>ValueError</code> if <code>wpm &lt;= 0</code>.</p>
+            <span class="func-category-badge">Readability</span>
+          </div>
+
+          <div class="func-card" data-category="freq" data-sig="character_frequency(text)" data-desc="returns case-insensitive character frequency dictionary sorted by count">
+            <span class="func-signature">character_frequency(text)</span>
+            <p class="func-desc">Returns a dictionary mapping characters to occurrence counts, sorted descending.</p>
+            <span class="func-category-badge">Frequencies</span>
+          </div>
+
+          <div class="func-card" data-category="freq" data-sig="word_frequency(text)" data-desc="returns case-insensitive word frequency dictionary sorted by count">
+            <span class="func-signature">word_frequency(text)</span>
+            <p class="func-desc">Returns a case-insensitive word frequency dictionary sorted by frequency.</p>
+            <span class="func-category-badge">Frequencies</span>
+          </div>
+
+          <div class="func-card" data-category="freq" data-sig="top_words(text, n=10)" data-desc="returns the n most common words as word count tuples">
+            <span class="func-signature">top_words(text, n=10)</span>
+            <p class="func-desc">Returns the top <code>n</code> most frequent words as a list of <code>(word, count)</code> tuples.</p>
+            <span class="func-category-badge">Frequencies</span>
+          </div>
+
+          <div class="func-card" data-category="loader" data-sig="load(path)" data-desc="loads supported file from disk and returns a document object">
+            <span class="func-signature">load(path)</span>
+            <p class="func-desc">Auto-detects file extension, extracts plain text, and returns a populated <code>Document</code> object.</p>
+            <span class="func-category-badge">File Loader</span>
+          </div>
         </div>
-        <div class="extensions" aria-label="Supported extensions">
-          <span class="extension">.txt</span>
-          <span class="extension">.md</span>
-          <span class="extension">.markdown</span>
-          <span class="extension">.html</span>
-          <span class="extension">.htm</span>
-          <span class="extension">.pdf</span>
-          <span class="extension">.docx</span>
-        </div>
-        <p class="note">
-          Install <code>textrep[pdf]</code> for PDF extraction, <code>textrep[docx]</code>
-          for Word documents, or <code>textrep[all]</code> for both optional loaders.
-        </p>
       </section>
 
-      <section id="results">
-        <div class="section-head">
-          <h2>Result Objects</h2>
-          <p>TextRep returns dataclasses so callers can use typed attributes instead of loosely shaped dictionaries.</p>
+      <!-- File Loaders Section -->
+      <section class="section" id="files">
+        <div class="section-header">
+          <div class="section-tag">I/O Loaders</div>
+          <h2 class="section-title">File Extraction</h2>
+          <p class="section-description">
+            TextRep extracts clean text from common document types. Plain text, Markdown, and HTML work out of the box. PDF and DOCX use optional extras.
+          </p>
         </div>
-        <div class="grid two">
+
+        <div class="code-window" style="margin-bottom: 24px;">
+          <div class="window-header">
+            <div class="window-dots">
+              <span class="window-dot dot-red"></span>
+              <span class="window-dot dot-yellow"></span>
+              <span class="window-dot dot-green"></span>
+            </div>
+            <span class="window-title">file_loader.py</span>
+            <button class="btn-copy-code" data-copy-target="file-loader-code">Copy</button>
+          </div>
+          <pre class="code-block" id="file-loader-code"><code><span class="token-keyword">import</span> textrep <span class="token-keyword">as</span> tr
+
+<span class="token-comment"># Load Markdown or PDF seamlessly</span>
+doc = tr.<span class="token-function">load</span>(<span class="token-string">"article.md"</span>)
+
+<span class="token-builtin">print</span>(doc.metadata.file_name)  <span class="token-comment"># "article.md"</span>
+<span class="token-builtin">print</span>(doc.word_count())         <span class="token-comment"># 482</span>
+<span class="token-builtin">print</span>(doc.to_dict())            <span class="token-comment"># Full serializable dict</span></code></pre>
+        </div>
+
+        <div class="formats-grid">
+          <div class="format-card active">
+            <div class="format-ext">.txt</div>
+            <div class="format-dep">Standard library</div>
+          </div>
+          <div class="format-card">
+            <div class="format-ext">.md</div>
+            <div class="format-dep">Standard library</div>
+          </div>
+          <div class="format-card">
+            <div class="format-ext">.html</div>
+            <div class="format-dep">Standard library</div>
+          </div>
+          <div class="format-card">
+            <div class="format-ext">.htm</div>
+            <div class="format-dep">Standard library</div>
+          </div>
+          <div class="format-card">
+            <div class="format-ext">.pdf</div>
+            <div class="format-dep">textrep[pdf]</div>
+          </div>
+          <div class="format-card">
+            <div class="format-ext">.docx</div>
+            <div class="format-dep">textrep[docx]</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Dataclasses Section -->
+      <section class="section" id="results">
+        <div class="section-header">
+          <div class="section-tag">Datatypes</div>
+          <h2 class="section-title">Result Objects</h2>
+          <p class="section-description">
+            TextRep returns typed Python dataclasses, providing autocomplete support and IDE type checking instead of loose dictionaries.
+          </p>
+        </div>
+
+        <div class="cards-grid" style="grid-template-columns: 1fr 1fr;">
           <article class="card">
-            <h3><code>TextStats</code></h3>
-            <p>Includes <code>word_count</code>, <code>character_count</code>, <code>letter_count</code>, <code>digit_count</code>, <code>space_count</code>, <code>symbol_count</code>, <code>unique_word_count</code>, and <code>average_word_length</code>.</p>
+            <h3 class="card-title"><code>TextStats</code></h3>
+            <p class="card-desc">Contains <code>word_count</code>, <code>character_count</code>, <code>letter_count</code>, <code>digit_count</code>, <code>space_count</code>, <code>symbol_count</code>, <code>unique_word_count</code>, and <code>average_word_length</code>.</p>
           </article>
+
           <article class="card">
-            <h3><code>ReadabilityStats</code></h3>
-            <p>Includes <code>sentence_count</code>, <code>average_sentence_length</code>, and <code>reading_time_minutes</code>.</p>
+            <h3 class="card-title"><code>ReadabilityStats</code></h3>
+            <p class="card-desc">Contains <code>sentence_count</code>, <code>average_sentence_length</code>, and <code>reading_time_minutes</code>.</p>
           </article>
+
           <article class="card">
-            <h3><code>DocumentMetadata</code></h3>
-            <p>Stores <code>source</code>, <code>file_name</code>, and <code>extension</code> when a document is loaded from disk.</p>
+            <h3 class="card-title"><code>DocumentMetadata</code></h3>
+            <p class="card-desc">Stores <code>source</code> path, <code>file_name</code>, and file <code>extension</code> when a document is parsed from local disk storage.</p>
           </article>
+
           <article class="card">
-            <h3><code>AnalysisResult</code></h3>
-            <p>Combines <code>TextStats</code>, <code>ReadabilityStats</code>, frequency dictionaries, and metadata into one complete result.</p>
+            <h3 class="card-title"><code>AnalysisResult</code></h3>
+            <p class="card-desc">Combines <code>TextStats</code>, <code>ReadabilityStats</code>, frequency dictionaries, and metadata into a complete result object.</p>
           </article>
         </div>
       </section>
 
-      <section id="errors">
-        <div class="section-head">
-          <h2>Errors and Compatibility</h2>
-          <p>TextRep exposes focused exception classes and keeps a legacy analyzer for older code.</p>
+      <!-- Errors and Compatibility Section -->
+      <section class="section" id="errors">
+        <div class="section-header">
+          <div class="section-tag">Exceptions</div>
+          <h2 class="section-title">Errors &amp; Legacy Support</h2>
+          <p class="section-description">
+            TextRep provides descriptive, typed exceptions for file handling and retains backward compatibility for older v1 integrations.
+          </p>
         </div>
-        <div class="api-list">
-          <div class="api-item"><code>TextRepError</code><p>Base class for TextRep-specific exceptions.</p></div>
-          <div class="api-item"><code>UnsupportedFileTypeError</code><p>Raised when <code>load(path)</code> receives an unsupported file extension.</p></div>
-          <div class="api-item"><code>MissingDependencyError</code><p>Raised when a file loader needs an optional dependency that is not installed.</p></div>
-          <div class="api-item"><code>TextAnalyzer(path)</code><p>Backward-compatible file analyzer that returns the legacy <code>AnalysisReport</code> shape.</p></div>
+
+        <div class="func-list">
+          <div class="func-card">
+            <span class="func-signature">TextRepError</span>
+            <p class="func-desc">Base class for all TextRep-specific exceptions in Python application code.</p>
+            <span class="func-category-badge">Base Exception</span>
+          </div>
+
+          <div class="func-card">
+            <span class="func-signature">UnsupportedFileTypeError</span>
+            <p class="func-desc">Raised when <code>load(path)</code> is passed an unrecognized or unsupported document extension.</p>
+            <span class="func-category-badge">File Exception</span>
+          </div>
+
+          <div class="func-card">
+            <span class="func-signature">MissingDependencyError</span>
+            <p class="func-desc">Raised when a file loader requires an uninstalled optional extra (e.g. <code>pypdf</code> for PDF files).</p>
+            <span class="func-category-badge">Dependency Exception</span>
+          </div>
+
+          <div class="func-card">
+            <span class="func-signature">TextAnalyzer(path)</span>
+            <p class="func-desc">Backward-compatible file analyzer returning the legacy <code>AnalysisReport</code> structure for v1 migration path.</p>
+            <span class="func-category-badge">Legacy v1 API</span>
+          </div>
         </div>
       </section>
 
-      <footer>
-        TextRep is authored by Kartik and released under the MIT License.
+      <!-- Footer -->
+      <footer class="footer">
+        <div>
+          <strong>TextRep</strong> — Lightweight Python Text Profiling &amp; Analysis
+        </div>
+        <div>
+          Authored by Kartik • <a href="https://github.com/orignlkartik1/textrep" target="_blank" rel="noopener noreferrer">GitHub Repository</a> • MIT License
+        </div>
       </footer>
     </main>
   </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
